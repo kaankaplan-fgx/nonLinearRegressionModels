@@ -186,6 +186,60 @@ defaultSummary(data.frame(
 ))
 
 
-#------------------------------- RSA ------------------------------
+#------------------------------- CART (Classification and Regression Tree)------------------------------
+
+cart_model <- rpart(Salary ~ ., data = df1)
+cart_model
+cart_model$variable.importance
+plot(cart_model)
+text(cart_model)
+
+
+prp(cart_model)
+rpart.plot(cart_model)
+plotcp(cart_model) #değişkenlerin önem değeri = cp
+
+df1 %>% mutate(y=predict(cart_model)) %>% ggplot() + geom_point(aes(CHits, Salary)) + geom_step(aes(CHits, y), col="blue")
+
+cart_model2 <- rpart(Salary ~ CHits, data = df1, control = rpart.control(cp=0, minsplit = 2))
+
+df1 %>% mutate(y=predict(cart_model2)) %>% ggplot() + geom_point(aes(CHits, Salary)) + geom_step(aes(CHits, y), col="blue")
+
+
+cart_model_edited <- prune(cart_model2, cp=0.012)
+df1 %>% mutate(y=predict(cart_model_edited)) %>% ggplot() + geom_point(aes(CHits, Salary)) + geom_step(aes(CHits, y), col="blue")
+rpart.plot(cart_model_edited)
+
+cart_model3 <- rpart(Salary ~ ., data = education, control = rpart.control(cp = 0.2, minsplit = 2))
+test_x_x <- test %>% dplyr::select(-Salary)
+cart_model3 <- rpart(Salary ~ ., data = education)
+defaultSummary(data.frame(
+  obs=test_y,
+  pred=predict(cart_model3, test_x_x)
+))
+
+#en uygun cp bulma
+
+cart_control <- trainControl(
+  method = "cv", number = 10
+)
+cart_grid <- data.frame(
+  cp=seq(0,0.01, length = 25)
+)
+set.seed(3232)
+
+cart_model_tuning <- train(
+  education_x,
+  education_y,
+  method = "rpart",
+  tuneGrid = cart_grid,
+  trControl = cart_control,
+  preProcess = c("center", "scale")
+)
+
+cart_model_tuning
+plot(cart_model_tuning)
+
+
 
 
