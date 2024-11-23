@@ -241,5 +241,11 @@ cart_model_tuning
 plot(cart_model_tuning)
 
 
+#------------------------------- BTR (Bayesian Topic Regression)------------------------------
+
+
+#bagging
+
+bagging_model <- ipredbagg(education_y, education_x)
 
 
